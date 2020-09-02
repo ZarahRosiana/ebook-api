@@ -14,8 +14,12 @@ class BookController extends Controller
      */
     public function index()
     {
-        //
-        return Book::get();
+        $book = Book::all();
+        if ($book && $book->count() > 0){
+            return response(['message' => 'Show data success.', 'data'=> $book], 200);
+        }else{
+            return response(['message' => 'Data not found.', 'data'=> null], 404);
+        }
     }
 
     /**
@@ -45,7 +49,7 @@ class BookController extends Controller
         ]);
     }
 
-    /**
+     /**
      * Display the specified resource.
      *
      * @param  int  $id
