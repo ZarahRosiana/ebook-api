@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Book;
 
+use JWTAuth;
+
 class BookController extends Controller
 {
     /**
@@ -14,23 +16,13 @@ class BookController extends Controller
      */
     public function index()
     {
-        $book = Book::all();
-        if ($book && $book->count() > 0){
-            return response(['message' => 'Show data success.', 'data'=> $book], 200);
-        }else{
-            return response(['message' => 'Data not found.', 'data'=> null], 404);
-        }
+        //
+        return Book::get();
+    }
+    public function __construct() {
+        $this->middleware('auth:api');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -40,16 +32,17 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
+        //
         return Book::create([
-            "title" => $request->input('title'),
-            "description" => $request->input('description'),
-            "author" => $request->input('author'),
-            "publisher" => $request->input('publisher'),
-            "date_of_issue" => $request->input('date_of_issue'),
+            "title" => $request->title,
+            "description" => $request->description,
+            "author" => $request->author,
+            "publisher" => $request->publisher,
+            "date_of_issue" => $request->date_of_issue
         ]);
     }
 
-     /**
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -58,18 +51,10 @@ class BookController extends Controller
     public function show($id)
     {
         //
+        return Book::find($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+   
 
     /**
      * Update the specified resource in storage.
@@ -81,15 +66,19 @@ class BookController extends Controller
     public function update(Request $request, $id)
     {
         //
-        return Book::find($id)->update([
-            "title" => $request->input('title'),
-            "description" => $request->input('description'),
-            "author" => $request->input('author'),
-            "publisher" => $request->input('publisher'),
-            "date_of_issue" => $request->input('date_of_issue'),
-        ]);
+        $book = Book::find($id);
+        if($book){
+            $book ->title = $request->title;
+            $book ->description = $request->description;
+            $book ->author = $request->author;
+            $book ->publisher = $request->publisher;
+            $book ->date_of_issue = $request->date_of_issue;
+            $book->save();
+            return response(['message'=> 'Update data success.', 'data'=> $book], 200);
+        }else{
+            return response(['message'=> 'Update data failed.', 'data'=> null], 406);
+        }
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -98,6 +87,13 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $book = Book::find($id);
+        if($book){
+            $book->delete();
+            return response([], 204);
+        }else{
+            return response(['message'=> 'Remove data failed.', 'data'=> null], 406);
+            
+        }
     }
 }
